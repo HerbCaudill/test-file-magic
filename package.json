@@ -3,6 +3,7 @@
   "displayName": "test-file-magic",
   "description": "Switch between source and test files, automatically scaffolding your tests if they don't exist.",
   "version": "0.0.1",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.35.0"
   },
@@ -10,30 +11,66 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.switch"
+    "onCommand:testFileMagic.switch",
+    "onCommand:testFileMagic.switchToTest",
+    "onCommand:testFileMagic.switchToSource"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "extension.switch",
-        "title": "Switch between test and source file"
+        "command": "testFileMagic.switch",
+        "title": "Switch between tests and source"
+      },
+      {
+        "command": "testFileMagic.switchToTest",
+        "title": "Go to tests"
+      },
+      {
+        "command": "testFileMagic.switchToSource",
+        "title": "Go to source for tests"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "resourceLangId =~ /(type|java)script(react)?/ && resourceFilename =~ /^((?!\\.test\\.).)*$/",
+          "command": "testFileMagic.switchToTest",
+          "group": "navigation"
+        },
+        {
+          "when": "resourceLangId =~ /(type|java)script(react)?/ && resourceFilename =~ /.*\\.test\\..*/",
+          "command": "testFileMagic.switchToSource",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
-    "vscode:prepublish": "yarn run compile",
+    "vscode:prepublish": "yarn compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "test:extension": "yarn run compile && node ./node_modules/vscode/bin/test",
-    "test:internals": "yarn run compile && node ./node_modules/vscode/bin/test"
+    "test:extension": "yarn compile && node ./node_modules/vscode/bin/test",
+    "test": "jest --watch"
   },
   "devDependencies": {
-    "typescript": "^3.3.1",
-    "vscode": "^1.1.28",
-    "tslint": "^5.12.1",
+    "@types/jest": "^24.0.15",
     "@types/node": "^10.12.21",
-    "@types/mocha": "^2.2.42"
+    "jest": "^24.8.0",
+    "ts-jest": "^24.0.2",
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.1",
+    "vscode": "^1.1.28"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/lib/**/*.test.ts"
+    ]
+  },
+  "dependencies": {
+    "re-template-tag": "^2.0.1"
   }
 }
