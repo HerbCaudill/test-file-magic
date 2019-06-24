@@ -15,9 +15,9 @@ describe('rex', () => {
   })
 
   it('replaces ordinary strings', () => {
-    const testExtension = 'test'
+    const testKeyword = 'test'
     const ext = 'js|ts'
-    const r = rex`/(?<filename>.*?)\.${testExtension}\.(?<ext>${ext})/mi`
+    const r = rex`/(?<filename>.*?)\.${testKeyword}\.(?<ext>${ext})/mi`
     expect(r.source).toEqual('(?<filename>.*?)\\.test\\.(?<ext>js|ts)')
   })
 
@@ -38,11 +38,11 @@ describe('rex', () => {
   })
 
   it('does it all', () => {
-    const testExtension = 'test'
+    const testKeyword = 'test'
     const ext = 'js|ts'
     const r = rex`/
       (?<path>.*?\\)?                                    # path
-      (?<filename>.*?)\.${testExtension}\.(?<ext>${ext}) # filename
+      (?<filename>.*?)\.${testKeyword}\.(?<ext>${ext}) # filename
       /mi`
     expect(r.source).toEqual('(?<path>.*?\\\\)?(?<filename>.*?)\\.test\\.(?<ext>js|ts)')
   })
