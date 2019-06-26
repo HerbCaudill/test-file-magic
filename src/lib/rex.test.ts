@@ -1,8 +1,8 @@
-import { stripComments, rex } from './rex'
+import { stripFreespaceAndComments as strip, rex } from './rex'
 
-describe('stripComments', () => {
-  it('removes comments', () => expect(stripComments('.* # any')).toEqual('.*'))
-  it('removes spaces', () => expect(stripComments('    .*    # any    ')).toEqual('.*'))
+describe('stripFreespaceAndComments', () => {
+  it('strips freespace', () => expect(strip('    .*    # any    ')).toEqual('.*'))
+  it('strips comments', () => expect(strip('.* # any')).toEqual('.*'))
 })
 
 describe('rex', () => {

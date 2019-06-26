@@ -9,14 +9,14 @@ export interface InternalConfig {
 
 export interface Config extends Partial<InternalConfig> {
   sourceRoot?: string
-  testRoot?: string | null
+  testRoot?: string
   testKeyword?: string
   extensions?: string[]
 }
 
 export const config = ({
   sourceRoot = 'src',
-  testRoot = 'tests',
+  testRoot = sourceRoot,
   testKeyword = 'test',
   extensions = ['ts', 'js', 'tsx', 'jsx'],
   sourceRegex,
@@ -25,22 +25,21 @@ export const config = ({
   testReplace,
 }: Config): InternalConfig => {
   const ext = extensions.join('|')
-  const sourceRootRegex = sourceRoot.length > 0 ? `(?<root>${sourceRoot})` : ''
   if (!sourceRegex || !sourceReplace) {
     sourceRegex = rex`/
-      ${sourceRootRegex}
+      (?<root>${sourceRoot})
       (?<path>.*?\\\\)?
       (?<filename>.*?)\.(?<ext>${ext})
       /mi`
-    sourceReplace = `$<root>$<path>$<filename>.${testKeyword}.$<ext>`
+    sourceReplace = `${testRoot}$<path>$<filename>.${testKeyword}.$<ext>`
   }
   if (!testRegex || !testReplace) {
     testRegex = rex`/
-      ${sourceRootRegex}
+      (?<root>${testRoot})
       (?<path>.*?\\\\)?
       (?<filename>.*?)\.${testKeyword}\.(?<ext>${ext})
       /mi`
-    testReplace = `$<root>$<path>$<filename>.$<ext>`
+    testReplace = `${sourceRoot}$<path>$<filename>.$<ext>`
   }
   return {
     sourceRegex,

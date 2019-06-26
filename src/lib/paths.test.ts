@@ -1,7 +1,5 @@
-import { config, InternalConfig, Config } from './config'
+import { config } from './config'
 import { getSourcePath, getTestPath } from './paths'
-
-// TODO: implement custom test root (e.g. src/foo.js -> __tests__/foo.test.js)
 
 // The expected value defaults to the test path; so we can pass undefined
 // to assert that the path will not be changed.
@@ -10,16 +8,17 @@ const SAME = undefined
 describe('default options', () => {
   describe('getTest', () => {
     test.each`
-      sourcePath           | testPath                  | comment
-      ${'foo.ts'}          | ${SAME}                   | ${'missing root'}
-      ${'esm\\foo.ts'}     | ${SAME}                   | ${'wrong root'}
-      ${'src\\foo.cs'}     | ${SAME}                   | ${'wrong file extension'}
-      ${'src\\foo.ts'}     | ${'src\\foo.test.ts'}     | ${''}
-      ${'src\\foo.js'}     | ${'src\\foo.test.js'}     | ${''}
-      ${'src\\foo.jsx'}    | ${'src\\foo.test.jsx'}    | ${''}
-      ${'src\\foo.tsx'}    | ${'src\\foo.test.tsx'}    | ${''}
-      ${'src\\foo.bar.ts'} | ${'src\\foo.bar.test.ts'} | ${''}
-      ${'src/foo.bar.ts'}  | ${'src\\foo.bar.test.ts'} | ${''}
+      sourcePath            | testPath                   | comment
+      ${'foo.ts'}           | ${SAME}                    | ${'missing root'}
+      ${'esm\\foo.ts'}      | ${SAME}                    | ${'wrong root'}
+      ${'src\\foo.cs'}      | ${SAME}                    | ${'wrong file extension'}
+      ${'src\\foo.ts'}      | ${'src\\foo.test.ts'}      | ${''}
+      ${'src\\foo.js'}      | ${'src\\foo.test.js'}      | ${''}
+      ${'src\\foo.jsx'}     | ${'src\\foo.test.jsx'}     | ${''}
+      ${'src\\foo.tsx'}     | ${'src\\foo.test.tsx'}     | ${''}
+      ${'src\\foo.bar.ts'}  | ${'src\\foo.bar.test.ts'}  | ${''}
+      ${'src/foo.bar.ts'}   | ${'src\\foo.bar.test.ts'}  | ${''}
+      ${'src\\foo\\bar.ts'} | ${'src\\foo\\bar.test.ts'} | ${''}
     `('$sourcePath -> $testPath', ({ sourcePath, testPath = sourcePath }) =>
       expect(getTestPath(sourcePath)).toEqual(testPath)
     )
@@ -41,7 +40,7 @@ describe('default options', () => {
   })
 })
 
-describe('custom opts', () => {
+describe('custom sourceRoot, testKeyword, extensions', () => {
   const options = config({
     sourceRoot: 'esm',
     testKeyword: 'spec',
@@ -75,6 +74,47 @@ describe('custom opts', () => {
       ${'esm\\foo.spec.jsx'}    | ${'esm\\foo.jsx'}    | ${''}
       ${'esm\\foo.bar.spec.js'} | ${'esm\\foo.bar.js'} | ${''}
       ${'esm/foo.bar.spec.js'}  | ${'esm\\foo.bar.js'} | ${''}
+    `('$testPath -> $sourcePath', ({ testPath, sourcePath = testPath }) =>
+      expect(getSourcePath(testPath, options)).toEqual(sourcePath)
+    )
+  })
+})
+
+describe('custom testRoot', () => {
+  const options = config({
+    testRoot: '_tests',
+  })
+
+  describe('getTest', () => {
+    test.each`
+      sourcePath            | testPath                      | comment
+      ${'foo.ts'}           | ${SAME}                       | ${'missing root'}
+      ${'esm\\foo.ts'}      | ${SAME}                       | ${'wrong root'}
+      ${'src\\foo.cs'}      | ${SAME}                       | ${'wrong file extension'}
+      ${'src\\foo.ts'}      | ${'_tests\\foo.test.ts'}      | ${''}
+      ${'src\\foo.js'}      | ${'_tests\\foo.test.js'}      | ${''}
+      ${'src\\foo.jsx'}     | ${'_tests\\foo.test.jsx'}     | ${''}
+      ${'src\\foo.tsx'}     | ${'_tests\\foo.test.tsx'}     | ${''}
+      ${'src\\foo.bar.ts'}  | ${'_tests\\foo.bar.test.ts'}  | ${''}
+      ${'src\\foo\\bar.ts'} | ${'_tests\\foo\\bar.test.ts'} | ${''}
+      ${'src/foo.bar.ts'}   | ${'_tests\\foo.bar.test.ts'}  | ${''}
+    `('$sourcePath -> $testPath', ({ sourcePath, testPath = sourcePath }) =>
+      expect(getTestPath(sourcePath, options)).toEqual(testPath)
+    )
+  })
+
+  describe('getSource', () => {
+    test.each`
+      testPath                      | sourcePath            | comment
+      ${'foo.test.js'}              | ${SAME}               | ${'missing root'}
+      ${'src\\foo.test.js'}         | ${SAME}               | ${'wrong root'}
+      ${'_tests\\foo.test.cs'}      | ${SAME}               | ${'wrong file extension'}
+      ${'_tests\\foo.spec.js'}      | ${SAME}               | ${'wrong test keyword'}
+      ${'_tests\\foo.test.js'}      | ${'src\\foo.js'}      | ${''}
+      ${'_tests\\foo.test.jsx'}     | ${'src\\foo.jsx'}     | ${''}
+      ${'_tests\\foo.bar.test.js'}  | ${'src\\foo.bar.js'}  | ${''}
+      ${'_tests\\foo\\bar.test.js'} | ${'src\\foo\\bar.js'} | ${''}
+      ${'_tests/foo.bar.test.js'}   | ${'src\\foo.bar.js'}  | ${''}
     `('$testPath -> $sourcePath', ({ testPath, sourcePath = testPath }) =>
       expect(getSourcePath(testPath, options)).toEqual(sourcePath)
     )

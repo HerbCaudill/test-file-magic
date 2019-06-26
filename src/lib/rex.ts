@@ -1,21 +1,49 @@
-const MSG_MISMATCHED_SLASH =
-  'If the `re` string starts with a slash, it must end with a second slash and zero or more flags: '
+// TODO: Move to own library
 
-type RegExBuilder = (literals: TemplateStringsArray, ...placeholders: (string | RegExp)[]) => RegExp
-
+/**
+ * This utility lets you create regular expressions from string template literals.
+ *
+ * It supports composing regular expressions:
+ * ```js
+ * const RE_YEAR = /([0-9]{4})/
+ * const RE_MONTH = /([0-9]{2})/
+ * const RE_DAY = /([0-9]{2})/
+ * const RE_DATE = rex`/^${RE_YEAR}-${RE_MONTH}-${RE_DAY}$/u`
+ * ```
+ *
+ * It also supports free spacing and comments:
+ * ```js
+ * const r = rex`/
+ *   (?<path>.*?\\)?                       # path
+ *   (?<filename>.*?)\.test\.(?<ext>ts|js) # filename
+ *   /mi`
+ *```
+ */
 export const rex: RegExBuilder = (literals, ...placeholders) => {
-  const rawLiterals = literals.raw.map(collapseFreespace)
+  const literalSource = literals.raw.map(stripFreespaceAndComments)
   const s =
-    rawLiterals[0] +
-    placeholders.map((p, i) => (p instanceof RegExp ? p.source : p) + rawLiterals[i + 1]).join('')
-  const { source, flags } = parse(s)
+    literalSource[0] +
+    placeholders
+      .map(
+        (replacement, i) =>
+          (replacement instanceof RegExp //
+            ? replacement.source
+            : replacement) + literalSource[i + 1]
+      )
+      .join('')
+  const { source, flags } = getSourceAndFlags(s)
   return new RegExp(source, flags)
 }
 
-// breaks a string into regex source and flags
-// /(.*)/gi -> {source: '(.*)', flags: 'gi'}
-// (.*) -> {source: '(.*)'}
-const parse = (s: string) => {
+/**
+ * Parses a string into regex source and flags:
+ * ```js
+ * getSourceAndFlags('/(.*)/gi') === {source: '(.*)', flags: 'gi'}
+ * getSourceAndFlags('(.*)') === {source: '(.*)'}
+ * ```
+ * @param s the string to parse
+ */
+const getSourceAndFlags = (s: string) => {
   if (s.startsWith('/')) {
     const lastSlashIndex = s.lastIndexOf('/')
     if (lastSlashIndex === 0) throw new Error(MSG_MISMATCHED_SLASH + s)
@@ -28,10 +56,17 @@ const parse = (s: string) => {
   }
 }
 
-const collapseFreespace = (s: string) =>
+/**
+ * Removes all freespace and comments from a single line of a multiline regex.
+ * @param s the line from the regex source string
+ */
+export const stripFreespaceAndComments = (s: string) =>
   s
     .split('\n')
-    .map(stripComments)
+    .map(line => line.replace(/(#.*)/, '').trim())
     .join('')
 
-export const stripComments = (s: string) => s.replace(/(#.*)/, '').trim()
+const MSG_MISMATCHED_SLASH =
+  'If the `re` string starts with a slash, it must end with a second slash and zero or more flags: '
+
+type RegExBuilder = (literals: TemplateStringsArray, ...placeholders: (string | RegExp)[]) => RegExp
