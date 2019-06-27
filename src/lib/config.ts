@@ -14,7 +14,6 @@ export interface Config extends Partial<InternalConfig> {
   testKeyword?: string | null
   extensions?: string[]
 }
-
 export const config = ({
   sourceDir = 'src',
   testDir = sourceDir,
