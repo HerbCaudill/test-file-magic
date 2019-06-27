@@ -14,10 +14,11 @@ export interface Config extends Partial<InternalConfig> {
   testKeyword?: string | null
   extensions?: string[]
 }
+
 export const config = ({
   sourceDir = 'src',
-  testDir = sourceDir,
   singleTestRoot = true,
+  testDir = singleTestRoot ? sourceDir : 'tests',
   testKeyword = 'test',
   extensions = ['ts', 'js', 'tsx', 'jsx'],
   sourceRegex,
@@ -25,27 +26,37 @@ export const config = ({
   testRegex,
   testReplace,
 }: Config): InternalConfig => {
-  const ext = extensions.join('|')
-  const testKeywordAndDot = testKeyword ? testKeyword + '.' : ''
-
   if (testKeyword === null && testDir === sourceDir)
     throw new Error(MSG_MUST_HAVE_TEST_KEYWORD_IF_NO_TEST_ROOT)
 
+  const ext = extensions.join('|')
+  const testKeywordAndDot = testKeyword ? testKeyword + '.' : ''
+
+  const sourceRootDir = sourceDir + '\\\\'
+  const testRootDir = (singleTestRoot ? testDir : sourceDir) + '\\\\'
+  const testSubDirAndSlash = singleTestRoot ? '' : testDir + '\\\\'
+  console.log(testSubDirAndSlash)
+
   if (!sourceRegex || !sourceReplace) {
     sourceRegex = rex`/
-      (?<root>${sourceDir})
-      (?<path>.*?\\\\)?
+      ^
+      (?<root>${sourceRootDir})
+      (?<path>.*\\)?
       (?<filename>.*?)\.(?<ext>${ext})
+      $
       /mi`
-    sourceReplace = `${testDir}$<path>$<filename>.${testKeywordAndDot}$<ext>`
+    sourceReplace = `${testRootDir}$<path>${testSubDirAndSlash}$<filename>.${testKeywordAndDot}$<ext>`
   }
   if (!testRegex || !testReplace) {
     testRegex = rex`/
-      (?<root>${testDir})
-      (?<path>.*?\\\\)?
+      ^
+      (?<root>${testRootDir})
+      (?<path>.*\\)?
+      ${testSubDirAndSlash}
       (?<filename>.*?)\.${testKeywordAndDot}(?<ext>${ext})
+      $
       /mi`
-    testReplace = `${sourceDir}$<path>$<filename>.$<ext>`
+    testReplace = `${sourceDir}\\$<path>\\$<filename>.$<ext>`
   }
   return {
     sourceRegex,
