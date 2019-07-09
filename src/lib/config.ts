@@ -10,15 +10,15 @@ export interface InternalConfig {
 export interface Config extends Partial<InternalConfig> {
   sourceDir?: string
   testDir?: string
-  singleTestRoot?: boolean
+  separateTestRoot?: boolean
   testKeyword?: string | null
   extensions?: string[]
 }
 
 export const config = ({
   sourceDir = 'src',
-  singleTestRoot = true,
-  testDir = singleTestRoot ? sourceDir : 'tests',
+  separateTestRoot = true,
+  testDir = separateTestRoot ? sourceDir : 'tests',
   testKeyword = 'test',
   extensions = ['ts', 'js', 'tsx', 'jsx'],
   sourceRegex,
@@ -33,9 +33,8 @@ export const config = ({
   const testKeywordAndDot = testKeyword ? testKeyword + '.' : ''
 
   const sourceRootDir = sourceDir + '\\\\'
-  const testRootDir = (singleTestRoot ? testDir : sourceDir) + '\\\\'
-  const testSubDirAndSlash = singleTestRoot ? '' : testDir + '\\\\'
-  console.log(testSubDirAndSlash)
+  const testRootDir = (separateTestRoot ? testDir : sourceDir) + '\\\\'
+  const testSubDirAndSlash = separateTestRoot ? '' : testDir + '\\\\'
 
   if (!sourceRegex || !sourceReplace) {
     sourceRegex = rex`/

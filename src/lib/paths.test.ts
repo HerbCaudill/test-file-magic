@@ -1,9 +1,6 @@
 import { config } from './config'
 import { getSourcePath, getTestPath } from './paths'
 
-// The expected value defaults to the original path; so we can pass undefined to assert that the path will not be changed.
-const SAME = undefined
-
 describe('paths', () => {
   describe('bad config scenarios', () => {
     test('must have `testKeyword` if no `testRoot`', () =>
@@ -14,9 +11,9 @@ describe('paths', () => {
     describe('getTest', () => {
       test.each`
         sourcePath            | testPath                   | comment
-        ${'foo.ts'}           | ${SAME}                    | ${'missing root'}
-        ${'esm\\foo.ts'}      | ${SAME}                    | ${'wrong root'}
-        ${'src\\foo.cs'}      | ${SAME}                    | ${'wrong file extension'}
+        ${'foo.ts'}           | ${undefined}               | ${'missing root'}
+        ${'esm\\foo.ts'}      | ${undefined}               | ${'wrong root'}
+        ${'src\\foo.cs'}      | ${undefined}               | ${'wrong file extension'}
         ${'src\\foo.ts'}      | ${'src\\foo.test.ts'}      | ${''}
         ${'src\\foo.js'}      | ${'src\\foo.test.js'}      | ${''}
         ${'src\\foo.jsx'}     | ${'src\\foo.test.jsx'}     | ${''}
@@ -32,10 +29,10 @@ describe('paths', () => {
     describe('getSource', () => {
       test.each`
         testPath                  | sourcePath           | comment
-        ${'foo.test.ts'}          | ${SAME}              | ${'missing root'}
-        ${'esm\\foo.test.js'}     | ${SAME}              | ${'wrong root'}
-        ${'src\\foo.spec.js'}     | ${SAME}              | ${'wrong test keyword'}
-        ${'src\\foo.test.cs'}     | ${SAME}              | ${'wrong file extensions'}
+        ${'foo.test.ts'}          | ${undefined}         | ${'missing root'}
+        ${'esm\\foo.test.js'}     | ${undefined}         | ${'wrong root'}
+        ${'src\\foo.spec.js'}     | ${undefined}         | ${'wrong test keyword'}
+        ${'src\\foo.test.cs'}     | ${undefined}         | ${'wrong file extensions'}
         ${'src\\foo.test.ts'}     | ${'src\\foo.ts'}     | ${''}
         ${'src\\foo.bar.test.ts'} | ${'src\\foo.bar.ts'} | ${''}
         ${'src/foo.bar.test.ts'}  | ${'src\\foo.bar.ts'} | ${''}
@@ -47,14 +44,15 @@ describe('paths', () => {
 
   describe('tests in subdirectory', () => {
     const options = config({
-      singleTestRoot: false,
+      separateTestRoot: false,
     })
+
     describe('getTest', () => {
       test.each`
         sourcePath            | testPath                          | comment
-        ${'foo.ts'}           | ${SAME}                           | ${'missing root'}
-        ${'esm\\foo.ts'}      | ${SAME}                           | ${'wrong root'}
-        ${'src\\foo.cs'}      | ${SAME}                           | ${'wrong file extension'}
+        ${'foo.ts'}           | ${undefined}                      | ${'missing root'}
+        ${'esm\\foo.ts'}      | ${undefined}                      | ${'wrong root'}
+        ${'src\\foo.cs'}      | ${undefined}                      | ${'wrong file extension'}
         ${'src\\foo.js'}      | ${'src\\tests\\foo.test.js'}      | ${''}
         ${'src\\foo.ts'}      | ${'src\\tests\\foo.test.ts'}      | ${''}
         ${'src\\foo.jsx'}     | ${'src\\tests\\foo.test.jsx'}     | ${''}
@@ -71,12 +69,12 @@ describe('paths', () => {
     describe('getSource', () => {
       test.each`
         testPath                          | sourcePath            | comment
-        ${'foo.test.ts'}                  | ${SAME}               | ${'missing root'}
-        ${'esm\\tests\\foo.test.js'}      | ${SAME}               | ${'wrong root'}
-        ${'src\\tests\\foo.spec.js'}      | ${SAME}               | ${'wrong test keyword'}
-        ${'src\\foo.test.js'}             | ${SAME}               | ${'missing subdir'}
-        ${'src\\spec\\foo.test.js'}       | ${SAME}               | ${'wrong subdir'}
-        ${'src\\tests\\foo.test.cs'}      | ${SAME}               | ${'wrong file extensions'}
+        ${'foo.test.ts'}                  | ${undefined}          | ${'missing root'}
+        ${'esm\\tests\\foo.test.js'}      | ${undefined}          | ${'wrong root'}
+        ${'src\\tests\\foo.spec.js'}      | ${undefined}          | ${'wrong test keyword'}
+        ${'src\\foo.test.js'}             | ${undefined}          | ${'missing subdir'}
+        ${'src\\spec\\foo.test.js'}       | ${undefined}          | ${'wrong subdir'}
+        ${'src\\tests\\foo.test.cs'}      | ${undefined}          | ${'wrong file extensions'}
         ${'src\\tests\\foo.test.ts'}      | ${'src\\foo.ts'}      | ${''}
         ${'src\\tests\\foo.bar.test.ts'}  | ${'src\\foo.bar.ts'}  | ${''}
         ${'src\\foo\\tests\\bar.test.ts'} | ${'src\\foo\\bar.ts'} | ${''}
@@ -91,14 +89,14 @@ describe('paths', () => {
   describe('tests in subdirectory, no keyword', () => {
     const options = config({
       testKeyword: null,
-      singleTestRoot: false,
+      separateTestRoot: false,
     })
     describe('getTest', () => {
       test.each`
         sourcePath            | testPath                     | comment
-        ${'foo.ts'}           | ${SAME}                      | ${'missing root'}
-        ${'esm\\foo.ts'}      | ${SAME}                      | ${'wrong root'}
-        ${'src\\foo.cs'}      | ${SAME}                      | ${'wrong file extension'}
+        ${'foo.ts'}           | ${undefined}                 | ${'missing root'}
+        ${'esm\\foo.ts'}      | ${undefined}                 | ${'wrong root'}
+        ${'src\\foo.cs'}      | ${undefined}                 | ${'wrong file extension'}
         ${'src\\foo.js'}      | ${'src\\tests\\foo.js'}      | ${''}
         ${'src\\foo.ts'}      | ${'src\\tests\\foo.ts'}      | ${''}
         ${'src\\foo.jsx'}     | ${'src\\tests\\foo.jsx'}     | ${''}
@@ -115,11 +113,11 @@ describe('paths', () => {
     describe('getSource', () => {
       test.each`
         testPath                     | sourcePath            | comment
-        ${'foo.ts'}                  | ${SAME}               | ${'missing root'}
-        ${'esm\\tests\\foo.js'}      | ${SAME}               | ${'wrong root'}
-        ${'src\\foo.js'}             | ${SAME}               | ${'missing subdir'}
-        ${'src\\spec\\foo.js'}       | ${SAME}               | ${'wrong subdir'}
-        ${'src\\tests\\foo.cs'}      | ${SAME}               | ${'wrong file extensions'}
+        ${'foo.ts'}                  | ${undefined}          | ${'missing root'}
+        ${'esm\\tests\\foo.js'}      | ${undefined}          | ${'wrong root'}
+        ${'src\\foo.js'}             | ${undefined}          | ${'missing subdir'}
+        ${'src\\spec\\foo.js'}       | ${undefined}          | ${'wrong subdir'}
+        ${'src\\tests\\foo.cs'}      | ${undefined}          | ${'wrong file extensions'}
         ${'src\\tests\\foo.ts'}      | ${'src\\foo.ts'}      | ${''}
         ${'src\\tests\\foo.bar.ts'}  | ${'src\\foo.bar.ts'}  | ${''}
         ${'src\\foo\\tests\\bar.ts'} | ${'src\\foo\\bar.ts'} | ${''}
@@ -141,10 +139,10 @@ describe('paths', () => {
     describe('getTest', () => {
       test.each`
         sourcePath           | testPath                  | comment
-        ${'foo.js'}          | ${SAME}                   | ${'missing root'}
-        ${'src\\foo.js'}     | ${SAME}                   | ${'wrong root'}
-        ${'esm\\foo.ts'}     | ${SAME}                   | ${'wrong file extension'}
-        ${'esm\\foo.tsx'}    | ${SAME}                   | ${'wrong file extensions'}
+        ${'foo.js'}          | ${undefined}              | ${'missing root'}
+        ${'src\\foo.js'}     | ${undefined}              | ${'wrong root'}
+        ${'esm\\foo.ts'}     | ${undefined}              | ${'wrong file extension'}
+        ${'esm\\foo.tsx'}    | ${undefined}              | ${'wrong file extensions'}
         ${'esm\\foo.js'}     | ${'esm\\foo.spec.js'}     | ${''}
         ${'esm\\foo.jsx'}    | ${'esm\\foo.spec.jsx'}    | ${''}
         ${'esm\\foo.bar.js'} | ${'esm\\foo.bar.spec.js'} | ${''}
@@ -157,10 +155,10 @@ describe('paths', () => {
     describe('getSource', () => {
       test.each`
         testPath                  | sourcePath           | comment
-        ${'foo.spec.js'}          | ${SAME}              | ${'missing root'}
-        ${'src\\foo.spec.js'}     | ${SAME}              | ${'wrong root'}
-        ${'esm\\foo.spec.ts'}     | ${SAME}              | ${'wrong file extension'}
-        ${'esm\\foo.test.js'}     | ${SAME}              | ${'wrong test keyword'}
+        ${'foo.spec.js'}          | ${undefined}         | ${'missing root'}
+        ${'src\\foo.spec.js'}     | ${undefined}         | ${'wrong root'}
+        ${'esm\\foo.spec.ts'}     | ${undefined}         | ${'wrong file extension'}
+        ${'esm\\foo.test.js'}     | ${undefined}         | ${'wrong test keyword'}
         ${'esm\\foo.spec.js'}     | ${'esm\\foo.js'}     | ${''}
         ${'esm\\foo.spec.jsx'}    | ${'esm\\foo.jsx'}    | ${''}
         ${'esm\\foo.bar.spec.js'} | ${'esm\\foo.bar.js'} | ${''}
@@ -179,9 +177,9 @@ describe('paths', () => {
     describe('getTest', () => {
       test.each`
         sourcePath            | testPath                      | comment
-        ${'foo.ts'}           | ${SAME}                       | ${'missing root'}
-        ${'esm\\foo.ts'}      | ${SAME}                       | ${'wrong root'}
-        ${'src\\foo.cs'}      | ${SAME}                       | ${'wrong file extension'}
+        ${'foo.ts'}           | ${undefined}                  | ${'missing root'}
+        ${'esm\\foo.ts'}      | ${undefined}                  | ${'wrong root'}
+        ${'src\\foo.cs'}      | ${undefined}                  | ${'wrong file extension'}
         ${'src\\foo.ts'}      | ${'_tests\\foo.test.ts'}      | ${''}
         ${'src\\foo.js'}      | ${'_tests\\foo.test.js'}      | ${''}
         ${'src\\foo.jsx'}     | ${'_tests\\foo.test.jsx'}     | ${''}
@@ -197,10 +195,10 @@ describe('paths', () => {
     describe('getSource', () => {
       test.each`
         testPath                      | sourcePath            | comment
-        ${'foo.test.js'}              | ${SAME}               | ${'missing root'}
-        ${'src\\foo.test.js'}         | ${SAME}               | ${'wrong root'}
-        ${'_tests\\foo.test.cs'}      | ${SAME}               | ${'wrong file extension'}
-        ${'_tests\\foo.spec.js'}      | ${SAME}               | ${'wrong test keyword'}
+        ${'foo.test.js'}              | ${undefined}          | ${'missing root'}
+        ${'src\\foo.test.js'}         | ${undefined}          | ${'wrong root'}
+        ${'_tests\\foo.test.cs'}      | ${undefined}          | ${'wrong file extension'}
+        ${'_tests\\foo.spec.js'}      | ${undefined}          | ${'wrong test keyword'}
         ${'_tests\\foo.test.js'}      | ${'src\\foo.js'}      | ${''}
         ${'_tests\\foo.test.jsx'}     | ${'src\\foo.jsx'}     | ${''}
         ${'_tests\\foo.bar.test.js'}  | ${'src\\foo.bar.js'}  | ${''}
@@ -221,9 +219,9 @@ describe('paths', () => {
     describe('getTest', () => {
       test.each`
         sourcePath            | testPath                 | comment
-        ${'foo.ts'}           | ${SAME}                  | ${'missing root'}
-        ${'esm\\foo.ts'}      | ${SAME}                  | ${'wrong root'}
-        ${'src\\foo.cs'}      | ${SAME}                  | ${'wrong file extension'}
+        ${'foo.ts'}           | ${undefined}             | ${'missing root'}
+        ${'esm\\foo.ts'}      | ${undefined}             | ${'wrong root'}
+        ${'src\\foo.cs'}      | ${undefined}             | ${'wrong file extension'}
         ${'src\\foo.ts'}      | ${'_tests\\foo.ts'}      | ${''}
         ${'src\\foo.js'}      | ${'_tests\\foo.js'}      | ${''}
         ${'src\\foo.jsx'}     | ${'_tests\\foo.jsx'}     | ${''}
@@ -239,9 +237,9 @@ describe('paths', () => {
     describe('getSource', () => {
       test.each`
         testPath                 | sourcePath            | comment
-        ${'foo.js'}              | ${SAME}               | ${'missing root'}
-        ${'src\\foo.js'}         | ${SAME}               | ${'wrong root'}
-        ${'_tests\\foo.cs'}      | ${SAME}               | ${'wrong file extension'}
+        ${'foo.js'}              | ${undefined}          | ${'missing root'}
+        ${'src\\foo.js'}         | ${undefined}          | ${'wrong root'}
+        ${'_tests\\foo.cs'}      | ${undefined}          | ${'wrong file extension'}
         ${'_tests\\foo.js'}      | ${'src\\foo.js'}      | ${''}
         ${'_tests\\foo.jsx'}     | ${'src\\foo.jsx'}     | ${''}
         ${'_tests\\foo.bar.js'}  | ${'src\\foo.bar.js'}  | ${''}
