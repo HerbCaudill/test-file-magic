@@ -48,43 +48,41 @@
     "configuration": {
       "title": "Test File Magic",
       "properties": {
-        "testFileMagic.sourceDir": {
+        "testFileMagic.sourceDirectory": {
           "type": "string",
           "default": "src",
           "markdownDescription": "Source directory name."
         },
-        "testFileMagic.testDir": {
+        "testFileMagic.testDirectory": {
           "type": "string",
           "default": "tests",
           "markdownDescription": "Test directory name."
         },
         "testFileMagic.testDirectoryLocation": {
           "type": "string",
+          "markdownDescription": "How are tests organized?",
           "enum": [
-            "Separate root",
-            "With source files"
+            "root",
+            "alongside"
           ],
           "enumDescriptions": [
             "Tests are stored in a single root-level test directory, with an internal directory structure mirroring the source directory's structure.",
             "Tests are stored in multiple test directories, each one alongside its corresponding source files."
           ],
-          "default": "Separate root"
+          "default": "root"
         },
         "testFileMagic.testKeyword": {
           "type": "string",
           "default": "test",
-          "markdownDescription": "Keyword for test filenames, inserted before the file extensino. For example, if set to `spec`, the test file for `foo.ts` is `foo.spec.ts`."
+          "markdownDescription": "Keyword for test filenames, inserted before the file extension. For example, if set to `spec`, the test file for `foo.ts` is `foo.spec.ts`."
         },
-        "testFileMagic.extensions": {
+        "testFileMagic.fileExtensions": {
           "type": "string",
           "default": "ts, js, tsx, jsx",
           "markdownDescription": "File extensions for source and test files (comma-separated)."
         },
-        "testFileMagic.template": {
-          "type": [
-            "array",
-            "object"
-          ],
+        "testFileMagic.testFileTemplate": {
+          "type": "array",
           "default": [
             "import {${moduleName}} from '${modulePath}'",
             "",
