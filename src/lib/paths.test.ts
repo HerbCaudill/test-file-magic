@@ -133,7 +133,7 @@ describe('paths', () => {
     const options = config({
       sourceDir: 'esm',
       testKeyword: 'spec',
-      extensions: ['js', 'jsx'],
+      fileExtensions: ['js', 'jsx'],
     })
 
     describe('getTest', () => {
@@ -171,6 +171,7 @@ describe('paths', () => {
 
   describe('custom testRoot', () => {
     const options = config({
+      separateTestRoot: true,
       testDir: '_tests',
     })
 

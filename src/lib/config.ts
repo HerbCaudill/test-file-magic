@@ -12,7 +12,7 @@ export interface Config extends Partial<InternalConfig> {
   testDir?: string
   separateTestRoot?: boolean
   testKeyword?: string | null
-  extensions?: string[]
+  fileExtensions?: string[]
 }
 
 export const config = ({
@@ -20,7 +20,7 @@ export const config = ({
   separateTestRoot = true,
   testDir = separateTestRoot ? sourceDir : 'tests',
   testKeyword = 'test',
-  extensions = ['ts', 'js', 'tsx', 'jsx'],
+  fileExtensions = ['ts', 'js', 'tsx', 'jsx'],
   sourceRegex,
   sourceReplace,
   testRegex,
@@ -29,30 +29,29 @@ export const config = ({
   if (testKeyword === null && testDir === sourceDir)
     throw new Error(MSG_MUST_HAVE_TEST_KEYWORD_IF_NO_TEST_ROOT)
 
-  const ext = extensions.join('|')
-  const testKeywordAndDot = testKeyword ? testKeyword + '.' : ''
-
-  const sourceRootDir = sourceDir + '\\\\'
-  const testRootDir = (separateTestRoot ? testDir : sourceDir) + '\\\\'
-  const testSubDirAndSlash = separateTestRoot ? '' : testDir + '\\\\'
+  const rx_ext = fileExtensions.join('|')
+  const rx_testKeywordAndDot = testKeyword ? testKeyword + '.' : ''
+  const rx_sourceRootDirAndSlash = sourceDir + '\\\\'
+  const rx_testRootDirAndSlash = (separateTestRoot ? testDir : sourceDir) + '\\\\'
+  const rx_testSubDirAndSlash = separateTestRoot ? '' : testDir + '\\\\'
 
   if (!sourceRegex || !sourceReplace) {
     sourceRegex = rex`/
       ^
-      (?<root>${sourceRootDir})
+      (?<root>${rx_sourceRootDirAndSlash})
       (?<path>.*\\)?
-      (?<filename>.*?)\.(?<ext>${ext})
+      (?<filename>.*?)\.(?<ext>${rx_ext})
       $
       /mi`
-    sourceReplace = `${testRootDir}$<path>${testSubDirAndSlash}$<filename>.${testKeywordAndDot}$<ext>`
+    sourceReplace = `${rx_testRootDirAndSlash}$<path>${rx_testSubDirAndSlash}$<filename>.${rx_testKeywordAndDot}$<ext>`
   }
   if (!testRegex || !testReplace) {
     testRegex = rex`/
       ^
-      (?<root>${testRootDir})
+      (?<root>${rx_testRootDirAndSlash})
       (?<path>.*\\)?
-      ${testSubDirAndSlash}
-      (?<filename>.*?)\.${testKeywordAndDot}(?<ext>${ext})
+      ${rx_testSubDirAndSlash}
+      (?<filename>.*?)\.${rx_testKeywordAndDot}(?<ext>${rx_ext})
       $
       /mi`
     testReplace = `${sourceDir}\\$<path>\\$<filename>.$<ext>`
