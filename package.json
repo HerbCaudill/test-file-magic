@@ -11,9 +11,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:testFileMagic.switch",
-    "onCommand:testFileMagic.switchToTest",
-    "onCommand:testFileMagic.switchToSource"
+    "onCommand:testFileMagic.switch"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -21,26 +19,12 @@
       {
         "command": "testFileMagic.switch",
         "title": "Switch between tests and source"
-      },
-      {
-        "command": "testFileMagic.switchToTest",
-        "title": "Go to tests"
-      },
-      {
-        "command": "testFileMagic.switchToSource",
-        "title": "Go to source for tests"
       }
     ],
     "menus": {
       "editor/context": [
         {
-          "when": "resourceLangId =~ /(type|java)script(react)?/ && resourceFilename =~ /^((?!test).)*$/",
-          "command": "testFileMagic.switchToTest",
-          "group": "navigation"
-        },
-        {
-          "when": "resourceLangId =~ /(type|java)script(react)?/ && resourceFilename =~ /.*test.*/",
-          "command": "testFileMagic.switchToSource",
+          "command": "testFileMagic.switch",
           "group": "navigation"
         }
       ]
