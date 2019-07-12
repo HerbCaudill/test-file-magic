@@ -12,7 +12,7 @@ export interface Config extends Partial<InternalConfig> {
   testDir?: string
   separateTestRoot?: boolean
   testKeyword?: string | null
-  fileExtensions?: string[]
+  fileExtensions?: string | string[]
 }
 
 export const config = ({
@@ -29,11 +29,15 @@ export const config = ({
   if (testKeyword === null && testDir === sourceDir)
     throw new Error(MSG_MUST_HAVE_TEST_KEYWORD_IF_NO_TEST_ROOT)
 
+  if (typeof fileExtensions === 'string') fileExtensions = fileExtensions.split(/,/g)
+  fileExtensions = fileExtensions.map(s => s.replace(/\./g, '').trim())
+
+  // console.log({ sourceDir, separateTestRoot, testDir, testKeyword })
   const rx_ext = fileExtensions.join('|')
   const rx_testKeywordAndDot = testKeyword ? testKeyword + '.' : ''
   const rx_sourceRootDirAndSlash = sourceDir + '\\\\'
   const rx_testRootDirAndSlash = (separateTestRoot ? testDir : sourceDir) + '\\\\'
-  const rx_testSubDirAndSlash = separateTestRoot ? '' : testDir + '\\\\'
+  const rx_testSubDirAndSlash = !separateTestRoot && testDir.length > 0 ? testDir + '\\\\' : ''
 
   if (!sourceRegex || !sourceReplace) {
     sourceRegex = rex`/
@@ -56,6 +60,12 @@ export const config = ({
       /mi`
     testReplace = `${sourceDir}\\$<path>\\$<filename>.$<ext>`
   }
+  // console.log({
+  //   sourceRegex,
+  //   sourceReplace,
+  //   testRegex,
+  //   testReplace,
+  // })
   return {
     sourceRegex,
     sourceReplace,

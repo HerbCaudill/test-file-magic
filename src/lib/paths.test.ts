@@ -7,7 +7,7 @@ describe('paths', () => {
       expect(() => config({ testDir: undefined, testKeyword: null })).toThrow())
   })
 
-  describe('default config', () => {
+  describe('no config', () => {
     describe('getTest', () => {
       test.each`
         sourcePath            | testPath                   | comment
@@ -28,16 +28,60 @@ describe('paths', () => {
 
     describe('getSource', () => {
       test.each`
-        testPath                  | sourcePath           | comment
-        ${'foo.test.ts'}          | ${undefined}         | ${'missing root'}
-        ${'esm\\foo.test.js'}     | ${undefined}         | ${'wrong root'}
-        ${'src\\foo.spec.js'}     | ${undefined}         | ${'wrong test keyword'}
-        ${'src\\foo.test.cs'}     | ${undefined}         | ${'wrong file extensions'}
-        ${'src\\foo.test.ts'}     | ${'src\\foo.ts'}     | ${''}
-        ${'src\\foo.bar.test.ts'} | ${'src\\foo.bar.ts'} | ${''}
-        ${'src/foo.bar.test.ts'}  | ${'src\\foo.bar.ts'} | ${''}
+        testPath                  | sourcePath            | comment
+        ${'foo.test.ts'}          | ${undefined}          | ${'missing root'}
+        ${'esm\\foo.test.js'}     | ${undefined}          | ${'wrong root'}
+        ${'src\\foo.spec.js'}     | ${undefined}          | ${'wrong test keyword'}
+        ${'src\\foo.test.cs'}     | ${undefined}          | ${'wrong file extensions'}
+        ${'src\\foo.test.ts'}     | ${'src\\foo.ts'}      | ${''}
+        ${'src\\foo.bar.test.ts'} | ${'src\\foo.bar.ts'}  | ${''}
+        ${'src/foo.bar.test.ts'}  | ${'src\\foo.bar.ts'}  | ${''}
+        ${'src/foo/bar.test.ts'}  | ${'src\\foo\\bar.ts'} | ${''}
       `('$testPath -> $sourcePath', ({ testPath, sourcePath, _ }) =>
         expect(getSourcePath(testPath)).toEqual(sourcePath)
+      )
+    })
+  })
+
+  describe('tests alongside', () => {
+    const options = config({
+      sourceDir: 'src',
+      separateTestRoot: false,
+      testDir: '',
+      testKeyword: 'test',
+    })
+    describe('getTest', () => {
+      test.each`
+        sourcePath            | testPath                   | comment
+        ${'foo.ts'}           | ${undefined}               | ${'missing root'}
+        ${'esm\\foo.ts'}      | ${undefined}               | ${'wrong root'}
+        ${'src\\foo.cs'}      | ${undefined}               | ${'wrong file extension'}
+        ${'src\\foo.ts'}      | ${'src\\foo.test.ts'}      | ${''}
+        ${'src\\foo.js'}      | ${'src\\foo.test.js'}      | ${''}
+        ${'src\\foo.jsx'}     | ${'src\\foo.test.jsx'}     | ${''}
+        ${'src\\foo.tsx'}     | ${'src\\foo.test.tsx'}     | ${''}
+        ${'src\\foo.bar.ts'}  | ${'src\\foo.bar.test.ts'}  | ${''}
+        ${'src/foo.bar.ts'}   | ${'src\\foo.bar.test.ts'}  | ${''}
+        ${'src/foo/bar.ts'}   | ${'src\\foo\\bar.test.ts'} | ${''}
+        ${'src\\foo\\bar.ts'} | ${'src\\foo\\bar.test.ts'} | ${''}
+      `('$sourcePath -> $testPath', ({ sourcePath, testPath }) =>
+        expect(getTestPath(sourcePath, options)).toEqual(testPath)
+      )
+    })
+
+    describe('getSource', () => {
+      test.each`
+        testPath                  | sourcePath            | comment
+        ${'foo.test.ts'}          | ${undefined}          | ${'missing root'}
+        ${'esm\\foo.test.js'}     | ${undefined}          | ${'wrong root'}
+        ${'src\\foo.spec.js'}     | ${undefined}          | ${'wrong test keyword'}
+        ${'src\\foo.test.cs'}     | ${undefined}          | ${'wrong file extensions'}
+        ${'src\\foo.test.ts'}     | ${'src\\foo.ts'}      | ${''}
+        ${'src\\foo.bar.test.ts'} | ${'src\\foo.bar.ts'}  | ${''}
+        ${'src/foo.bar.test.ts'}  | ${'src\\foo.bar.ts'}  | ${''}
+        ${'src/foo/bar.test.ts'}  | ${'src\\foo\\bar.ts'} | ${''}
+      `('$testPath -> $sourcePath', ({ testPath, sourcePath, _ }) =>
+        expect(getSourcePath(testPath, options)).toEqual(sourcePath)
       )
     })
   })
