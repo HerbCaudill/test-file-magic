@@ -1,65 +1,76 @@
-# test-file-magic README
+# Test File Magic
 
-This is the README for your extension "test-file-magic". After writing up a brief description, we recommend including the following sections.
+Still to do:
+
+- [ ] Wire up keyword replacement in template
+- [ ] Create test file if doesn't exist
+- [ ] Show computed regex
+- [ ] Expose regex?
+- [ ] Write readme
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Lets you switch back and forth between source and test files
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+If you have any requirements or dependencies, add a section describing those and how to install and
+configure them.
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
 This extension contributes the following settings:
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+```json
+"testFileMagic.sourceDirectory": {
+  "type": "string",
+  "default": "src",
+  "markdownDescription": "Source directory name."
+},
+"testFileMagic.testDirectory": {
+  "type": "string",
+  "default": "tests",
+  "markdownDescription": "Test directory name."
+},
+"testFileMagic.testDirectoryLocation": {
+  "type": "string",
+  "markdownDescription": "How are tests organized?",
+  "enum": [
+    "root",
+    "alongside"
+  ],
+  "enumDescriptions": [
+    "Tests are stored in a single root-level test directory, with an internal directory structure mirroring the source directory's structure.",
+    "Tests are stored in multiple test directories, each one alongside its corresponding source files."
+  ],
+  "default": "root"
+},
+"testFileMagic.testKeyword": {
+  "type": "string",
+  "default": "test",
+  "markdownDescription": "Keyword for test filenames, inserted before the file extension. For example, if set to `spec`, the test file for `foo.ts` is `foo.spec.ts`."
+},
+"testFileMagic.fileExtensions": {
+  "type": "string",
+  "default": "ts, js, tsx, jsx",
+  "markdownDescription": "File extensions for source and test files (comma-separated)."
+},
+"testFileMagic.testFileTemplate": {
+  "type": "array",
+  "default": [
+    "import {${moduleName}} from '${modulePath}'",
+    "",
+    "describe('${moduleName}', () => {",
+    "  it('should work', () => {",
+    "",
+    "  })",
+    "})"
+  ],
+  "markdownDescription": "Template for test files."
+}
+}
+```
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
 ## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
