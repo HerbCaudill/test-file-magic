@@ -1,10 +1,8 @@
-# Test File Magic
+This is an open-source [VS Code](microsoft/vscode) extension created by [Herb Caudill](/herbcaudill).
 
 ## Features
 
 **Test File Magic** helps you switch back and forth between source and test files. It can be customized to work with many common patterns for organizing test files.
-
-This is an open-source [VS Code](microsoft/vscode) extension created by [Herb Caudill](/herbcaudill).
 
 ## Configuration
 
