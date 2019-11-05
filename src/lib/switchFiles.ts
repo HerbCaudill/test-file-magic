@@ -1,5 +1,3 @@
-import { window, Uri } from 'vscode'
-import * as path from 'path'
 import { config } from './config'
 import { getSourcePath, getTestPath } from './paths'
 

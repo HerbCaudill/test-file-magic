@@ -4,7 +4,7 @@ import { getSourcePath, getTestPath } from './paths'
 describe('paths', () => {
   describe('bad config scenarios', () => {
     test('must have `testKeyword` if no `testRoot`', () =>
-      expect(() => config({ testDir: undefined, testKeyword: null })).toThrow())
+      expect(() => config({ testDir: '', testKeyword: '' })).toThrow())
   })
 
   describe('no config', () => {
@@ -43,7 +43,7 @@ describe('paths', () => {
     })
   })
 
-  describe('tests alongside', () => {
+  describe('explicit config', () => {
     // this matches the default, so it's the same same as no config
     const options = config({
       sourceDir: 'src',
@@ -89,7 +89,7 @@ describe('paths', () => {
 
   describe('tests in subdirectory', () => {
     const options = config({
-      separateTestRoot: false,
+      testDir: 'tests',
     })
 
     describe('getTest', () => {
@@ -133,7 +133,8 @@ describe('paths', () => {
 
   describe('tests in subdirectory, no keyword', () => {
     const options = config({
-      testKeyword: null,
+      testDir: 'tests',
+      testKeyword: '',
       separateTestRoot: false,
     })
     describe('getTest', () => {
@@ -220,6 +221,13 @@ describe('paths', () => {
       testDir: '_tests',
     })
 
+    // console.log({
+    //   sourceRegex: options.sourceRegex.source,
+    //   sourceReplace: options.sourceReplace,
+    //   testRegex: options.testRegex.source,
+    //   testReplace: options.testReplace,
+    // })
+
     describe('getTest', () => {
       test.each`
         sourcePath            | testPath                      | comment
@@ -256,7 +264,7 @@ describe('paths', () => {
     })
   })
 
-  describe('nested testRoot', () => {
+  describe('nested test dir', () => {
     const options = config({
       separateTestRoot: true,
       testDir: 'src\\tests',
@@ -265,13 +273,7 @@ describe('paths', () => {
     describe('getTest', () => {
       test.each`
         sourcePath            | testPath                          | comment
-        ${'foo.ts'}           | ${undefined}                      | ${'missing root'}
-        ${'esm\\foo.ts'}      | ${undefined}                      | ${'wrong root'}
-        ${'src\\foo.cs'}      | ${undefined}                      | ${'wrong file extension'}
         ${'src\\foo.ts'}      | ${'src\\tests\\foo.test.ts'}      | ${''}
-        ${'src\\foo.js'}      | ${'src\\tests\\foo.test.js'}      | ${''}
-        ${'src\\foo.jsx'}     | ${'src\\tests\\foo.test.jsx'}     | ${''}
-        ${'src\\foo.tsx'}     | ${'src\\tests\\foo.test.tsx'}     | ${''}
         ${'src\\foo.bar.ts'}  | ${'src\\tests\\foo.bar.test.ts'}  | ${''}
         ${'src\\foo\\bar.ts'} | ${'src\\tests\\foo\\bar.test.ts'} | ${''}
         ${'src/foo.bar.ts'}   | ${'src\\tests\\foo.bar.test.ts'}  | ${''}
@@ -283,12 +285,7 @@ describe('paths', () => {
     describe('getSource', () => {
       test.each`
         testPath                          | sourcePath            | comment
-        ${'foo.test.js'}                  | ${undefined}          | ${'missing root'}
-        ${'src\\foo.test.js'}             | ${undefined}          | ${'wrong root'}
-        ${'src\\tests\\foo.test.cs'}      | ${undefined}          | ${'wrong file extension'}
-        ${'src\\tests\\foo.spec.js'}      | ${undefined}          | ${'wrong test keyword'}
         ${'src\\tests\\foo.test.js'}      | ${'src\\foo.js'}      | ${''}
-        ${'src\\tests\\foo.test.jsx'}     | ${'src\\foo.jsx'}     | ${''}
         ${'src\\tests\\foo.bar.test.js'}  | ${'src\\foo.bar.js'}  | ${''}
         ${'src\\tests\\foo\\bar.test.js'} | ${'src\\foo\\bar.js'} | ${''}
         ${'src\\tests/foo.bar.test.js'}   | ${'src\\foo.bar.js'}  | ${''}
@@ -298,10 +295,69 @@ describe('paths', () => {
     })
   })
 
+  describe('nested source root', () => {
+    const options = config({
+      sourceDir: 'packages/my-pkg/src',
+    })
+
+    describe('getTest', () => {
+      test.each`
+        sourcePath                             | testPath                                        | comment
+        ${'packages/my-pkg/src/foo.ts'}        | ${'packages\\my-pkg\\src\\foo.test.ts'}         | ${''}
+        ${'packages/my-pkg/src/folder/foo.ts'} | ${'packages\\my-pkg\\src\\folder\\foo.test.ts'} | ${''}
+        ${'packages\\my-pkg/src/foo.ts'}       | ${'packages\\my-pkg\\src\\foo.test.ts'}         | ${''}
+      `('$sourcePath -> $testPath', ({ sourcePath, testPath }) =>
+        expect(getTestPath(sourcePath, options)).toEqual(testPath)
+      )
+    })
+
+    describe('getSource', () => {
+      test.each`
+        testPath                                        | sourcePath                                 | comment
+        ${'packages\\my-pkg\\src\\foo.test.ts'}         | ${'packages\\my-pkg\\src\\foo.ts'}         | ${''}
+        ${'packages\\my-pkg\\src\\folder\\foo.test.ts'} | ${'packages\\my-pkg\\src\\folder\\foo.ts'} | ${''}
+        ${'packages\\my-pkg\\src\\foo.test.ts'}         | ${'packages\\my-pkg\\src\\foo.ts'}         | ${''}
+      `('$testPath -> $sourcePath', ({ testPath, sourcePath }) =>
+        expect(getSourcePath(testPath, options)).toEqual(sourcePath)
+      )
+    })
+  })
+
+  describe('wildcard in root', () => {
+    const options = config({
+      sourceDir: 'packages/**/src',
+    })
+
+    describe('getTest', () => {
+      test.each`
+        sourcePath                             | testPath                                        | comment
+        ${'packages/pkg-1/src/foo.ts'}         | ${'packages\\pkg-1\\src\\foo.test.ts'}          | ${''}
+        ${'packages/pkg-2/src/foo.ts'}         | ${'packages\\pkg-2\\src\\foo.test.ts'}          | ${''}
+        ${'packages/my-pkg/src/folder/foo.ts'} | ${'packages\\my-pkg\\src\\folder\\foo.test.ts'} | ${''}
+        ${'packages\\my-pkg/src/foo.ts'}       | ${'packages\\my-pkg\\src\\foo.test.ts'}         | ${''}
+      `('$sourcePath -> $testPath', ({ sourcePath, testPath }) =>
+        expect(getTestPath(sourcePath, options)).toEqual(testPath)
+      )
+    })
+
+    describe('getSource', () => {
+      test.each`
+        testPath                                        | sourcePath                                 | comment
+        ${'packages\\pkg-1\\src\\foo.test.ts'}          | ${'packages\\pkg-1\\src\\foo.ts'}          | ${''}
+        ${'packages\\pkg-2\\src\\foo.test.ts'}          | ${'packages\\pkg-2\\src\\foo.ts'}          | ${''}
+        ${'packages\\my-pkg\\src\\folder\\foo.test.ts'} | ${'packages\\my-pkg\\src\\folder\\foo.ts'} | ${''}
+        ${'packages\\my-pkg\\src\\foo.test.ts'}         | ${'packages\\my-pkg\\src\\foo.ts'}         | ${''}
+      `('$testPath -> $sourcePath', ({ testPath, sourcePath }) =>
+        expect(getSourcePath(testPath, options)).toEqual(sourcePath)
+      )
+    })
+  })
+
   describe('no testKeyword', () => {
     const options = config({
+      separateTestRoot: true,
       testDir: '_tests',
-      testKeyword: null,
+      testKeyword: '',
     })
 
     describe('getTest', () => {
