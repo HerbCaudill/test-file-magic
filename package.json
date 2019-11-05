@@ -35,6 +35,12 @@
         }
       ]
     },
+    "keybindings": [
+      {
+        "command": "testFileMagic.switch",
+        "key": "alt+T alt+T"
+      }
+    ],
     "configuration": {
       "title": "Test File Magic",
       "properties": {
