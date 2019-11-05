@@ -29,11 +29,13 @@ export const config = ({
   if (testKeyword === null && testDir === sourceDir)
     throw new Error(MSG_MUST_HAVE_TEST_KEYWORD_IF_NO_TEST_ROOT)
 
+  // make array of file extensions
   if (typeof fileExtensions === 'string') fileExtensions = fileExtensions.split(/,/g)
+  // remove dots from file extensions
   fileExtensions = fileExtensions.map(s => s.replace(/\./g, '').trim())
 
   // console.log({ sourceDir, separateTestRoot, testDir, testKeyword })
-  const rx_ext = fileExtensions.join('|')
+  const rx_extensions = fileExtensions.join('|')
   const rx_testKeywordAndDot = testKeyword ? testKeyword + '.' : ''
   const rx_sourceRootDirAndSlash = sourceDir + '\\\\'
   const rx_testRootDirAndSlash = (separateTestRoot ? testDir : sourceDir) + '\\\\'
@@ -44,7 +46,7 @@ export const config = ({
       ^
       (?<root>${rx_sourceRootDirAndSlash})
       (?<path>.*\\)?
-      (?<filename>.*?)\.(?<ext>${rx_ext})
+      (?<filename>.*?)\.(?<ext>${rx_extensions})
       $
       /mi`
     sourceReplace = `${rx_testRootDirAndSlash}$<path>${rx_testSubDirAndSlash}$<filename>.${rx_testKeywordAndDot}$<ext>`
@@ -55,17 +57,17 @@ export const config = ({
       (?<root>${rx_testRootDirAndSlash})
       (?<path>.*\\)?
       ${rx_testSubDirAndSlash}
-      (?<filename>.*?)\.${rx_testKeywordAndDot}(?<ext>${rx_ext})
+      (?<filename>.*?)\.${rx_testKeywordAndDot}(?<ext>${rx_extensions})
       $
       /mi`
     testReplace = `${sourceDir}\\$<path>\\$<filename>.$<ext>`
   }
-  // console.log({
-  //   sourceRegex,
-  //   sourceReplace,
-  //   testRegex,
-  //   testReplace,
-  // })
+  console.log({
+    sourceRegex,
+    sourceReplace,
+    testRegex,
+    testReplace,
+  })
   return {
     sourceRegex,
     sourceReplace,
