@@ -44,7 +44,7 @@
         },
         "testFileMagic.testDirectory": {
           "type": "string",
-          "default": "tests",
+          "default": "",
           "markdownDescription": "Name of the directory containing test files."
         },
         "testFileMagic.testDirectoryLocation": {
