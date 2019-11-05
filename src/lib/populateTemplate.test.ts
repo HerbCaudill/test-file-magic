@@ -6,6 +6,30 @@ describe('getRelativePathToModule', () => {
     expect(actual).toBe('./populateTemplate')
   })
 
+  test('files in same directory, nested', () => {
+    const actual = getRelativePathToModule(
+      'foo/populateTemplate.ts',
+      'foo/populateTemplate.test.ts'
+    )
+    expect(actual).toBe('./populateTemplate')
+  })
+
+  test('files in same directory, nested, backslashes', () => {
+    const actual = getRelativePathToModule(
+      'packages\\client\\src\\models\\user\\User.ts',
+      'packages\\client\\src\\models\\user\\User.test.ts'
+    )
+    expect(actual).toBe('./User')
+  })
+
+  test('files in same directory, nested, mixed slashes', () => {
+    const actual = getRelativePathToModule(
+      'packages/client/src/models/user/User.ts',
+      'packages\\client\\src\\models\\user\\User.test.ts'
+    )
+    expect(actual).toBe('./User')
+  })
+
   test('source in parent directory', () => {
     const actual = getRelativePathToModule(
       './populateTemplate.ts',
