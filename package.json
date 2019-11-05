@@ -29,6 +29,21 @@
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "testFileMagic.switch"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "testFileMagic.switch"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "testFileMagic.switch"
+        }
+      ],
       "editor/context": [
         {
           "command": "testFileMagic.switch"
