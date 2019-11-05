@@ -15,12 +15,8 @@ export const switchFiles = (filePath: string, workspaceConfig: any) => {
   }
 
   const options = config(settings)
-  const sourcePath = getSourcePath(filePath, options)
-  const testPath = getTestPath(filePath, options)
+  const sourceFile = getSourcePath(filePath, options)
+  const testFile = getTestPath(filePath, options)
 
-  // console.log({ filePath, sourcePath, testPath })
-  // this is a test file, go to source file
-  if (sourcePath) return sourcePath
-  // this is a source file, go to test file
-  else if (testPath) return testPath
+  return { sourceFile, testFile }
 }

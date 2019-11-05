@@ -13,12 +13,12 @@ describe('switchFiles', () => {
     it('should find the test file', () => {
       const actual = switchFiles('src/lib/switch.ts', workspaceConfig)
       const expected = normalize('src/lib/switch.test.ts')
-      expect(actual).toEqual(expected)
+      expect(actual.testFile).toEqual(expected)
     })
     it('should find the source file', () => {
       const actual = switchFiles('src/lib/switch.test.ts', workspaceConfig)
       const expected = normalize('src/lib/switch.ts')
-      expect(actual).toEqual(expected)
+      expect(actual.sourceFile).toEqual(expected)
     })
   })
 
@@ -33,12 +33,12 @@ describe('switchFiles', () => {
     it('should find the test file', () => {
       const actual = switchFiles('src/021.ts', workspaceConfig)
       const expected = normalize('tests/021.test.ts')
-      expect(actual).toEqual(expected)
+      expect(actual.testFile).toEqual(expected)
     })
     it('should find the source file', () => {
       const actual = switchFiles('tests/021.test.ts', workspaceConfig)
       const expected = normalize('src/021.ts')
-      expect(actual).toEqual(expected)
+      expect(actual.sourceFile).toEqual(expected)
     })
   })
 })

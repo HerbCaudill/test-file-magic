@@ -1,15 +1,15 @@
 import { rex } from './rex'
-// import esc = require('escape-string-regexp')
 import { normalize } from 'path'
 
+// escape user input for source/test directories so they can be used in regexes
 const esc = (s: string) =>
   s
-    .replace(/\\/g, '\\\\')
-    .replace(/\-/g, '\\-')
-    .replace(/\*\*/g, '.*')
+    .replace(/\\/g, '\\\\') // escape backslashes
+    .replace(/\-/g, '\\-') // escape dashes
+    .replace(/\*\*/g, '.*') // handle wildcards
 
-expect(esc('\\_foo-bar\\')).toBe('\\\\_foo\\-bar\\\\')
-expect(esc('\\packages\\**\\src\\')).toBe('\\\\packages\\\\.*\\\\src\\\\')
+// expect(esc('\\_foo-bar\\')).toBe('\\\\_foo\\-bar\\\\')
+// expect(esc('\\packages\\**\\src\\')).toBe('\\\\packages\\\\.*\\\\src\\\\')
 
 export interface InternalConfig {
   sourceRegex: RegExp
