@@ -3,6 +3,7 @@ import * as path from 'path'
 import { commands, window, workspace, ExtensionContext, Uri } from 'vscode'
 import { switchFiles } from './lib/switchFiles'
 import { populateTemplate } from './lib/populateTemplate'
+import vscode = require('vscode')
 export function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand('testFileMagic.switch', (file: Uri) => {
@@ -24,7 +25,8 @@ export function activate(context: ExtensionContext) {
           fs.writeFileSync(targetPath, fileContents)
         }
         // open the file
-        window.showTextDocument(Uri.file(targetPath))
+        const uri = Uri.file(targetPath)
+        vscode.workspace.openTextDocument(uri).then(doc => vscode.window.showTextDocument(doc))
       } else
         window.showWarningMessage(
           `Test File Magic: The current file (${currentFile}) doesn't match the pattern for either a test file or a source file. Please check your settings.`
