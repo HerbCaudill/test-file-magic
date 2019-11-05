@@ -7,70 +7,129 @@ Still to do:
 - [ ] Show computed regex
 - [ ] Expose regex?
 - [ ] Write readme
+- [ ] Detect current structure
 
 ## Features
 
-Lets you switch back and forth between source and test files
+**Test File Magic** helps you switch back and forth between source and test files. It can be customized to work with just many common patterns for organizing test files.
 
-## Requirements
+This is an open-source [VS Code](microsoft/vscode) extension created by [Herb Caudill](/herbcaudill).
 
-If you have any requirements or dependencies, add a section describing those and how to install and
-configure them.
+## Configuration
 
-## Extension Settings
+By default, this extension assumes that your tests are organized like this:
 
-This extension contributes the following settings:
+```
+📁 [workspace root]
+    📁 src
+        📄 index.js
+        📄 index.test.js
+        📄 foo.js
+        📄 foo.test.js
+        📁 lib
+            📄 bar.js
+            📄 bar.test.js
+```
+
+Test File Magic offers these settings to adapt to the way you organize your tests.
+
+| Name | Description | Default |
+| --- | --- | --- |
+| `testFileMagic.fileExtensions` | File extensions for source and test files (comma-separated). | `ts, js, tsx, jsx` |
+| `testFileMagic.testKeyword` | Keyword for test filenames, inserted before the file extension. For example, if set to `spec`, the test file for `foo.ts` is `foo.spec.ts`. | `test` |
+| `testFileMagic.sourceDirectory` | Name of the directory containing source files. | `src` |
+| `testFileMagic.testDirectory` | Name of the directory (or directories) containing test files. If this is not set, each test file lives alongside its corresponding source file. | (not&nbsp;set) |
+| `testFileMagic.testDirectoryLocation` | If `testFileMagic.testDirectory` is set, this indicates whether there is just one test directory or many:<ul><li>`root` Tests are stored in a single root-level test directory, with an internal directory structure mirroring the source directory's structure.</li><li>`alongside` Tests are stored in multiple test directories, each one alongside its corresponding source files.</li></ul> | `root` |
+| `testFileMagic.testFileTemplate` | Template to use when creating a new test file for a module. |  |
+
+Note that either `testFileMagic.testDirectory` or `testFileMagic.testKeyword` (or both) need to be set.
+
+As with all settings, you can change these at the **workspace** level and/or at the **user** level.
+
+### Configuration examples
+
+#### Tests identified with a different keyword
+
+```
+📁 [workspace root]
+  📁 src
+    📄 index.js
+    📄 index.spec.js    🡸 custom keyword for tests (`spec` instead of `test`)
+    📄 foo.js
+    📄 foo.spec.js      🡸
+    📁 lib
+      📄 bar.js
+      📄 bar.spec.js    🡸
+```
 
 ```json
-"testFileMagic.sourceDirectory": {
-  "type": "string",
-  "default": "src",
-  "markdownDescription": "Source directory name."
-},
-"testFileMagic.testDirectory": {
-  "type": "string",
-  "default": "tests",
-  "markdownDescription": "Test directory name."
-},
-"testFileMagic.testDirectoryLocation": {
-  "type": "string",
-  "markdownDescription": "How are tests organized?",
-  "enum": [
-    "root",
-    "alongside"
-  ],
-  "enumDescriptions": [
-    "Tests are stored in a single root-level test directory, with an internal directory structure mirroring the source directory's structure.",
-    "Tests are stored in multiple test directories, each one alongside its corresponding source files."
-  ],
-  "default": "root"
-},
-"testFileMagic.testKeyword": {
-  "type": "string",
-  "default": "test",
-  "markdownDescription": "Keyword for test filenames, inserted before the file extension. For example, if set to `spec`, the test file for `foo.ts` is `foo.spec.ts`."
-},
-"testFileMagic.fileExtensions": {
-  "type": "string",
-  "default": "ts, js, tsx, jsx",
-  "markdownDescription": "File extensions for source and test files (comma-separated)."
-},
-"testFileMagic.testFileTemplate": {
-  "type": "array",
-  "default": [
-    "import {${moduleName}} from '${modulePath}'",
-    "",
-    "describe('${moduleName}', () => {",
-    "  it('should work', () => {",
-    "",
-    "  })",
-    "})"
-  ],
-  "markdownDescription": "Template for test files."
-}
+{
+  "testFileMagic.testKeyword": "spec"
 }
 ```
 
-## Known Issues
+#### Tests in subdirectories
 
-## Release Notes
+```
+📁 [workspace root]
+    📁 src
+        📄 index.js
+        📄 foo.js
+        📁 tests                🡸 each folder has a `tests` subdirectory
+            📄 index.test.js
+            📄 foo.test.js
+        📁 lib
+            📄 bar.js
+            📁 tests            🡸
+                📄 bar.test.js
+```
+
+```json
+{
+  "testFileMagic.testDirectory": "tests",
+  "testFileMagic.testDirectoryLocation": "alongside"
+}
+```
+
+#### Tests in root-level directory
+
+```
+📁 [workspace root]
+    📁 src
+        📄 index.js
+        📁 lib
+            📄 bar.js
+    📁 tests                    🡸 root-level `tests` directory with parallel file structure
+        📄 index.test.js
+        📁 lib
+            📄 bar.test.js
+```
+
+```json
+{
+  "testFileMagic.testDirectory": "tests",
+  "testFileMagic.testDirectoryLocation": "root"
+}
+```
+
+#### Tests in root-level directory with no keyword
+
+```
+📁 [workspace root]
+    📁 src
+        📄 index.js
+        📁 lib
+            📄 bar.js
+    📁 tests
+        📄 index.js             🡸 test files don't include a `test` or `spec` keyword
+        📁 lib
+            📄 bar.js           🡸
+```
+
+```json
+{
+  "testFileMagic.testKeyword": "",
+  "testFileMagic.testDirectory": "tests",
+  "testFileMagic.testDirectoryLocation": "root"
+}
+```
