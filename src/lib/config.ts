@@ -1,4 +1,5 @@
 import { rex } from './rex'
+import escapeStringRegexp = require('escape-string-regexp')
 
 export interface InternalConfig {
   sourceRegex: RegExp
@@ -28,6 +29,10 @@ export const config = ({
 }: Config): InternalConfig => {
   if (testKeyword === null && testDir === sourceDir)
     throw new Error(MSG_MUST_HAVE_TEST_KEYWORD_IF_NO_TEST_ROOT)
+
+  // escape directories (e.g. in case they contain slashes)
+  sourceDir = escapeStringRegexp(sourceDir)
+  testDir = escapeStringRegexp(testDir)
 
   // make array of file extensions
   if (typeof fileExtensions === 'string') fileExtensions = fileExtensions.split(/,/g)
@@ -62,18 +67,15 @@ export const config = ({
       /mi`
     testReplace = `${sourceDir}\\$<path>\\$<filename>.$<ext>`
   }
-  console.log({
-    sourceRegex,
-    sourceReplace,
-    testRegex,
-    testReplace,
-  })
-  return {
+
+  const configOutput = {
     sourceRegex,
     sourceReplace,
     testRegex,
     testReplace,
   }
+  // console.log(result)
+  return configOutput
 }
 
 const MSG_MUST_HAVE_TEST_KEYWORD_IF_NO_TEST_ROOT =
