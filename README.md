@@ -1,14 +1,5 @@
 # Test File Magic
 
-Still to do:
-
-- [ ] Wire up keyword replacement in template
-- [ ] Create test file if doesn't exist
-- [ ] Show computed regex
-- [ ] Expose regex?
-- [ ] Write readme
-- [ ] Detect current structure
-
 ## Features
 
 **Test File Magic** helps you switch back and forth between source and test files. It can be customized to work with just many common patterns for organizing test files.
