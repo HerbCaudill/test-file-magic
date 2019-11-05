@@ -2,7 +2,7 @@
   "name": "test-file-magic",
   "displayName": "Test File Magic",
   "description": "Switch between source and test files, automatically scaffolding your tests if they don't exist.",
-  "version": "0.7.9",
+  "version": "0.7.10",
   "publisher": "herbcaudill",
   "repository": {
     "type": "git",
