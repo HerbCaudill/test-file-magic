@@ -113,6 +113,7 @@
     ]
   },
   "dependencies": {
+    "escape-string-regexp": "^2.0.0",
     "re-template-tag": "^2.0.1"
   }
 }
