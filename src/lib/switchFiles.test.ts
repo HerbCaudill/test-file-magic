@@ -1,6 +1,5 @@
 import { normalize } from 'path'
 import { switchFiles } from './switchFiles'
-import { workspace } from 'vscode'
 
 describe('switchFiles', () => {
   describe('this project (test-file-magic)', () => {
