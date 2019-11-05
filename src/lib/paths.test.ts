@@ -247,8 +247,7 @@ describe('paths', () => {
         ${'_tests\\foo.spec.js'}      | ${undefined}          | ${'wrong test keyword'}
         ${'_tests\\foo.test.js'}      | ${'src\\foo.js'}      | ${''}
         ${'_tests\\foo.test.jsx'}     | ${'src\\foo.jsx'}     | ${''}
-        ${'_tests\\foo.bar.test.js'}  | ${'src\\fo
-        o.bar.js'}  | ${''}
+        ${'_tests\\foo.bar.test.js'}  | ${'src\\foo.bar.js'}  | ${''}
         ${'_tests\\foo\\bar.test.js'} | ${'src\\foo\\bar.js'} | ${''}
         ${'_tests/foo.bar.test.js'}   | ${'src\\foo.bar.js'}  | ${''}
       `('$testPath -> $sourcePath', ({ testPath, sourcePath }) =>
