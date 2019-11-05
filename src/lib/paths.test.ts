@@ -255,6 +255,48 @@ describe('paths', () => {
     })
   })
 
+  describe('nested testRoot', () => {
+    const options = config({
+      separateTestRoot: true,
+      testDir: 'src\\tests',
+    })
+
+    describe('getTest', () => {
+      test.each`
+        sourcePath            | testPath                          | comment
+        ${'foo.ts'}           | ${undefined}                      | ${'missing root'}
+        ${'esm\\foo.ts'}      | ${undefined}                      | ${'wrong root'}
+        ${'src\\foo.cs'}      | ${undefined}                      | ${'wrong file extension'}
+        ${'src\\foo.ts'}      | ${'src\\tests\\foo.test.ts'}      | ${''}
+        ${'src\\foo.js'}      | ${'src\\tests\\foo.test.js'}      | ${''}
+        ${'src\\foo.jsx'}     | ${'src\\tests\\foo.test.jsx'}     | ${''}
+        ${'src\\foo.tsx'}     | ${'src\\tests\\foo.test.tsx'}     | ${''}
+        ${'src\\foo.bar.ts'}  | ${'src\\tests\\foo.bar.test.ts'}  | ${''}
+        ${'src\\foo\\bar.ts'} | ${'src\\tests\\foo\\bar.test.ts'} | ${''}
+        ${'src/foo.bar.ts'}   | ${'src\\tests\\foo.bar.test.ts'}  | ${''}
+      `('$sourcePath -> $testPath', ({ sourcePath, testPath }) =>
+        expect(getTestPath(sourcePath, options)).toEqual(testPath)
+      )
+    })
+
+    describe('getSource', () => {
+      test.each`
+        testPath                          | sourcePath            | comment
+        ${'foo.test.js'}                  | ${undefined}          | ${'missing root'}
+        ${'src\\foo.test.js'}             | ${undefined}          | ${'wrong root'}
+        ${'src\\tests\\foo.test.cs'}      | ${undefined}          | ${'wrong file extension'}
+        ${'src\\tests\\foo.spec.js'}      | ${undefined}          | ${'wrong test keyword'}
+        ${'src\\tests\\foo.test.js'}      | ${'src\\foo.js'}      | ${''}
+        ${'src\\tests\\foo.test.jsx'}     | ${'src\\foo.jsx'}     | ${''}
+        ${'src\\tests\\foo.bar.test.js'}  | ${'src\\foo.bar.js'}  | ${''}
+        ${'src\\tests\\foo\\bar.test.js'} | ${'src\\foo\\bar.js'} | ${''}
+        ${'src\\tests/foo.bar.test.js'}   | ${'src\\foo.bar.js'}  | ${''}
+      `('$testPath -> $sourcePath', ({ testPath, sourcePath }) =>
+        expect(getSourcePath(testPath, options)).toEqual(sourcePath)
+      )
+    })
+  })
+
   describe('no testKeyword', () => {
     const options = config({
       testDir: '_tests',
